@@ -17,10 +17,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private TextMeshProUGUI finalScoreText; // New!
 
-    private void Start()
-    {
-        ReturnToMainMenu();
-    }
+   
 
     public void ReturnToMainMenu()
     {

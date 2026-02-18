@@ -143,13 +143,62 @@ public class GameManager : MonoBehaviour
 
     internal void LoadGame()
     {
+       
         SaveData data = saveManager.LoadGameData();
+
+      
         rows = data.rows;
         cols = data.cols;
         totalMatches = (rows * cols) / 2;
         scoreManager.SetScore(data.score);
+        currentMatches = 0;
+        flippedCardsQueue.Clear();
 
-        // Rebuild grid from save data logic goes here...
-        // (Similar to GenerateGrid, but applying IsFlipped/IsMatched statuses from data)
+
+        foreach (Transform child in gridContainer) Destroy(child.gameObject);
+        allCards.Clear();
+
+      
+        float containerWidth = gridContainer.rect.width;
+        float containerHeight = gridContainer.rect.height;
+        float cellWidth = containerWidth / cols - 10f;
+        float cellHeight = containerHeight / rows - 10f;
+        float finalSize = Mathf.Min(cellWidth, cellHeight);
+
+        GridLayoutGroup gridLayout = gridContainer.GetComponent<GridLayoutGroup>();
+        gridLayout.cellSize = new Vector2(finalSize, finalSize);
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.constraintCount = cols;
+
+       
+        for (int i = 0; i < data.cardIds.Count; i++)
+        {
+            GameObject cardObj = Instantiate(cardPrefab, gridContainer);
+            Card card = cardObj.GetComponent<Card>();
+
+           
+            int savedId = data.cardIds[i];
+            bool isFlipped = data.cardFlippedStates[i];
+            bool isMatched = data.cardMatchedStates[i];
+
+ 
+            card.Initialize(savedId, availableFrontSprites[savedId % availableFrontSprites.Length], OnCardClicked);
+
+       
+            card.SetState(isFlipped, isMatched);
+
+            allCards.Add(card);
+
+          
+            if (isMatched)
+            {
+                currentMatches++;
+            }
+        }
+
+       
+        currentMatches /= 2;
+
+        Debug.Log("Game Loaded Successfully!");
     }
 }
